@@ -1,0 +1,117 @@
+<?xml version="1.0" ?>
+<!DOCTYPE html 
+  PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<title>fftw3.rd</title>
+</head>
+<body>
+<h1><a name="label:0" id="label:0">module NumRu::FFTW3</a></h1><!-- RDLabel: "module NumRu::FFTW3" -->
+<p>Fast Fourier Transforms by using <a href="http://www.fftw.org">FFTW</a> Ver.3.</p>
+<p>Takeshi Horinouchi</p>
+<p>(C) Takeshi Horinouchi / GFD Dennou Club,
+2003</p>
+<p>NO WARRANTY</p>
+<h2><a name="label:1" id="label:1">Features</a></h2><!-- RDLabel: "Features" -->
+<ul>
+<li>Uses <a href="http://www.ruby-lang.org/en/raa-list.rhtml?name=NArray">NArray</a>.</li>
+<li>Multi-dimensional complex FFT. (Real data are coerced to complex).</li>
+<li>Supports both double and single float transforms.</li>
+<li>Not normalized as in FFTW</li>
+</ul>
+<h2><a name="label:2" id="label:2">Features yet to be introduced</a></h2><!-- RDLabel: "Features yet to be introduced" -->
+<ul>
+<li>Sine / cosine transforms</li>
+<li>User choice of optimization levels (i.e., FFTW_MEASURE etc in
+  addition to FFTW_ESTIMATE).</li>
+<li>Multi-threaded FFT3 support -- don't know whether it's really feasible.</li>
+</ul>
+<h2><a name="label:3" id="label:3">Installation</a></h2><!-- RDLabel: "Installation" -->
+<ul>
+<li>Install <a href="http://www.fftw.org">FFTW</a> Ver.3.
+<ul>
+<li>NOTE: 
+    To activate the single-float transform, you have to install FFTW3 with
+    the single-float compilation, in addition to the default double-float
+    version. This can be done by configuring FFTW3 with
+    the --enable-float option, and install it again. The single-float
+    version will coexist with the double-float version.
+    If you do not install the single-float version, FFT is always done
+    with the double precision, which is not bad if you are not time- and 
+    memory-conscious.</li>
+</ul></li>
+<li>Install <a href="http://www.ruby-lang.org/en/raa-list.rhtml?name=NArray">NArray</a>.</li>
+<li><p>Then, install this library as follows (replace "version" with
+  the actual version number):</p>
+<pre>% tar xvzf fftw3-version.tar.gz
+% cd fftw3-version
+% ruby extconf.rb
+% make
+% make site-install</pre>
+<p>Or</p>
+<pre>% make install</pre>
+<p>(If you are using Ruby 1.8, make install is the same make site-install.)</p></li>
+</ul>
+<h2><a name="label:4" id="label:4">How to use</a></h2><!-- RDLabel: "How to use" -->
+<p>See the following peice of code. (Install this library and copy and
+paste the following to the interactive shell irb).</p>
+<pre>require "narray"
+require "numru/fftw3"
+include NumRu
+
+na = NArray.float(8,6)   # float -&gt; will be corced to complex
+na[1,1]=1
+
+# &lt;example 1&gt;
+fc = FFTW3.fft(na, -1)/na.length  # forward 2D FFT and normalization
+nc = FFTW3.fft(fc, 1)       # backward 2D FFT (complex) --&gt; 
+nb = nc.real                # should be equal to na except round errors  
+
+# &lt;example 2&gt;
+fc = FFTW3.fft(na, -1, 0) / na.shape[0]  # forward FFT with the first dim
+
+# &lt;example 3&gt;
+fc = FFTW3.fft(na, -1, 1) / na.shape[1]  # forward FFT with the second dim</pre>
+<h2><a name="label:5" id="label:5">API Reference</a></h2><!-- RDLabel: "API Reference" -->
+<h3><a name="label:6" id="label:6">Module methods</a></h3><!-- RDLabel: "Module methods" -->
+<dl>
+<dt><a name="label:7" id="label:7"><code>fft(<var>narray</var>, <var>dir</var> [,<var>dim</var>,<var>dim</var>,...])</code></a></dt><!-- RDLabel: "fft" -->
+<dd>
+<p>Complex FFT.</p>
+<p>The 3rd, 4th,... arguments are optional.</p>
+<p>ARGUMENTS</p>
+<ul>
+<li>narray (NArray or NArray-compatible Array) : array to be
+      transformed. If real, coerced to complex before transformation.
+      If narray is single-precision and the single-precision
+      version of FFTW3 is installed (before installing this module),
+      this method does a single-precision transform. 
+      Otherwise, a double-precision transform is used.</li>
+<li>dir (-1 or 1) : forward transform if -1; backward transform if 1.</li>
+<li>optional 3rd, 4th,... arguments (Integer) : Specifies dimensions 
+      to apply FFT. For example, if 0, the first dimension is
+      transformed (1D FFT); If -1, the last dimension is used (1D FFT);
+      If 0,2,4, the first, third, and fifth dimensions
+      are transformed (3D FFT); If entirely omitted, ALL DIMENSIONS
+      ARE SUBJECT TO FFT, so 3D FFT is done with a 3D array.</li>
+</ul>
+<p>RETURN VALUE</p>
+<ul>
+<li>a complex NArray</li>
+</ul>
+<p>NOTE</p>
+<ul>
+<li>As in FFTW, return value is NOT normalized. Thus, a consecutive
+      forward and backward transform would multiply the size of
+      data used for transform. You can normalize, for example,
+      the forward transform FFTW.fft(narray, -1, 0, 1)
+      (FFT regarding the first (dim 0) &amp; second (dim 1) dimensions) by
+      dividing with (narray.shape[0]*narray.shape[1]). Likewise,
+      the result of FFTW.fft(narray, -1) (FFT for all dimensions)
+      can be normalized by narray.length.</li>
+</ul></dd>
+</dl>
+
+</body>
+</html>

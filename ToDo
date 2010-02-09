@@ -1,0 +1,4 @@
+2003/11/18
+* enable users to choose FFTW_MEASURE etc
+* support real-to-real tranforms (esp. sine and cosine transforms)
+
